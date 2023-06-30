@@ -1,0 +1,12 @@
+numpy
+scipy
+Pillow
+cython
+matplotlib
+scikit-image
+tensorflow
+keras==2.12.0
+opencv-python==4.7.0.72
+h5py==3.9.0
+imgaug
+protobuf==3.20.3
