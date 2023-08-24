@@ -8,7 +8,6 @@
 import tensorflow as tf
 
 tf.compat.v1.disable_v2_behavior()
-
 # Object detection imports
 from utils import backbone
 from api import object_counting_api
