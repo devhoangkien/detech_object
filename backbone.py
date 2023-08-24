@@ -7,7 +7,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
-from sklearn.utils.linear_assignment_ import linear_assignment
+from scipy.optimize import linear_sum_assignment as linear_assignment
 
 import detection_layer
 import cv2
