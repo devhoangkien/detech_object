@@ -4,7 +4,7 @@ import cv2
 import math
 import argparse
 
-def highlightFace(net, frame, conf_threshold=0.45):
+def highlightFace(net, frame, conf_threshold=0.4):
     frameOpencvDnn=frame.copy()
     frameHeight=frameOpencvDnn.shape[0]
     frameWidth=frameOpencvDnn.shape[1]
@@ -50,7 +50,7 @@ def run(frame):
     resultImg,faceBoxes=highlightFace(faceNet,frame)
     if not faceBoxes:
                 print("No face detected")
-    data = []
+    data = {"gender": {},"age":{}}
     for faceBox in faceBoxes:
                 face=frame[max(0,faceBox[1]-padding):
                         min(faceBox[3]+padding,frame.shape[0]-1),max(0,faceBox[0]-padding)
@@ -59,11 +59,18 @@ def run(frame):
                 blob=cv2.dnn.blobFromImage(face, 1.0, (227,227), MODEL_MEAN_VALUES, swapRB=False)
                 genderNet.setInput(blob)
                 genderPreds=genderNet.forward()
-                gender=genderList[genderPreds[0].argmax()]
+                gender=genderList[genderPreds[0].argmax()].replace('(','').replace(')','').replace('-','_').lower()
                 ageNet.setInput(blob)
                 agePreds=ageNet.forward()
-                age=ageList[agePreds[0].argmax()]
-                data.append({"age":age,"gender":gender})
+                age=ageList[agePreds[0].argmax()].replace('(','').replace(')','').replace('-','_')
+                if(gender not in data['gender']):
+                       data['gender'][gender] = 1
+                else:
+                       data['gender'][gender] += 1
+                if(age not in data['age']):
+                       data['age'][age] = 1
+                else:
+                       data['age'][age] += 1
     return data
                 # print(f'Age: {age[1:-1]} years')
 
