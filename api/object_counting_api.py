@@ -494,7 +494,6 @@ def single_image_object_counting(input_video, detection_graph, category_index, i
                                                                                                line_thickness=4)
         data = run(input_frame)
         data['person'] = counting_result.replace("'person:': ","")
-        print(data)
         # if(len(counting_result) == 0):
         #     cv2.putText(input_frame, "...", (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)                       
         # else:
@@ -503,4 +502,4 @@ def single_image_object_counting(input_video, detection_graph, category_index, i
         # cv2.imshow('tensorflow_object counting_api',input_frame)        
         # cv2.waitKey(0)
 
-        return counting_result
+        return data

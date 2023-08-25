@@ -52,3 +52,5 @@ urllib3==1.26.16
 Werkzeug==2.3.6
 wheel==0.40.0
 wrapt==1.14.1
+werkzeug
+flask_session
