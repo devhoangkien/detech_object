@@ -11,6 +11,7 @@ import cv2
 from gender_age.detect import run
 import numpy as np
 from utils import visualization_utils as vis_util
+from gender_age.detect import run
 # Variables
 total_passed_objects = 0  # using it to count objects
 
@@ -304,7 +305,7 @@ def object_counting(input_video, detection_graph, category_index, is_color_recog
             cv2.destroyAllWindows()
 
 def object_counting_webcam(detection_graph, category_index, is_color_recognition_enabled):
-
+    try:
         color = "waiting..."
         with detection_graph.as_default():
           with tf.compat.v1.Session(graph=detection_graph) as sess:
@@ -358,7 +359,11 @@ def object_counting_webcam(detection_graph, category_index, is_color_recognition
                 if(len(counting_result) == 0):
                     cv2.putText(input_frame, "...", (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)                       
                 else:
-                    cv2.putText(input_frame, counting_result, (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)
+                    data = run(input_frame)
+                    text = str(data['gender']).replace("{","").replace("}","") +' , '+ str(data['age']).replace("{","").replace("}","")
+                    result = counting_result +' , ' + text
+                    print(result)
+                    cv2.putText(input_frame,result, (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)
                 
                 cv2.imshow('object counting',input_frame)
 
@@ -367,6 +372,8 @@ def object_counting_webcam(detection_graph, category_index, is_color_recognition
 
             cap.release()
             cv2.destroyAllWindows()
+    except Exception as e:
+        print(e)
 
 def targeted_object_counting(input_video, detection_graph, category_index, is_color_recognition_enabled, targeted_object):
 
@@ -487,7 +494,7 @@ def single_image_object_counting(input_video, detection_graph, category_index, i
                                                                                                line_thickness=4)
         data = run(input_frame)
         data['person'] = counting_result.replace("'person:': ","")
-        print(data['age']['25_32'])
+        print(data)
         # if(len(counting_result) == 0):
         #     cv2.putText(input_frame, "...", (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)                       
         # else:
