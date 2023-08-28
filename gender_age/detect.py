@@ -4,7 +4,7 @@ import cv2
 import math
 import argparse
 
-def highlightFace(net, frame, conf_threshold=0.7):
+def highlightFace(net, frame, conf_threshold=0.4):
     frameOpencvDnn=frame.copy()
     frameHeight=frameOpencvDnn.shape[0]
     frameWidth=frameOpencvDnn.shape[1]
@@ -24,6 +24,20 @@ def highlightFace(net, frame, conf_threshold=0.7):
             cv2.rectangle(frameOpencvDnn, (x1,y1), (x2,y2), (0,255,0), int(round(frameHeight/150)), 8)
     return frameOpencvDnn,faceBoxes
 
+def create_frame(input):
+       video=cv2.VideoCapture(input)
+       padding=20
+       list_frame = []
+       while cv2.waitKey(1)<0 :
+              hasFrame,frame=video.read()
+              if not hasFrame:
+                     cv2.waitKey()
+                     break
+              else:
+                     list_frame.append(frame)
+
+
+       return list_frame
 def run(frame):
        try:
               parser=argparse.ArgumentParser()
@@ -51,7 +65,7 @@ def run(frame):
               resultImg,faceBoxes=highlightFace(faceNet,frame)
               if not faceBoxes:
                             print("No face detected")
-              data = {"gender": {},"age":{}}
+              data = {"gender": {},"age":{},'person':0}
               for faceBox in faceBoxes:
                             face=frame[max(0,faceBox[1]-padding):
                                    min(faceBox[3]+padding,frame.shape[0]-1),max(0,faceBox[0]-padding)

@@ -11,7 +11,7 @@ import tensorflow as tf
 from utils import backbone
 from api import object_counting_api
 
-def detect_image(input):
+def detect_image(input='',frame=''):
     input_video = input
 
     # By default I use an "SSD with Mobilenet" model here. See the detection model zoo (https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) for a list of other models that can be run out-of-the-box with varying speeds and accuracies.
@@ -19,5 +19,5 @@ def detect_image(input):
 
     is_color_recognition_enabled = False # set it to true for enabling the color prediction for the detected objects
 
-    result = object_counting_api.single_image_object_counting(input_video, detection_graph, category_index, is_color_recognition_enabled) # targeted objects counting
+    result = object_counting_api.single_image_object_counting(input_video, detection_graph, category_index, is_color_recognition_enabled,frame) # targeted objects counting
     return result

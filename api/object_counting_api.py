@@ -11,7 +11,6 @@ import cv2
 from gender_age.detect import run
 import numpy as np
 from utils import visualization_utils as vis_util
-from gender_age.detect import run
 # Variables
 total_passed_objects = 0  # using it to count objects
 
@@ -304,7 +303,7 @@ def object_counting(input_video, detection_graph, category_index, is_color_recog
             cap.release()
             cv2.destroyAllWindows()
 
-def object_counting_webcam(detection_graph, category_index, is_color_recognition_enabled):
+def object_counting_webcam(detection_graph, category_index, is_color_recognition_enabled,input = None):
     try:
         color = "waiting..."
         with detection_graph.as_default():
@@ -320,11 +319,14 @@ def object_counting_webcam(detection_graph, category_index, is_color_recognition
             detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-
-            cap = cv2.VideoCapture(0)
+            if(input != None):
+                cap = cv2.VideoCapture(input)
+            else:
+                cap = cv2.VideoCapture(0)
             (ret, frame) = cap.read()
 
             # for all the frames that are extracted from input video
+            result = []
             while True:
                 # Capture frame-by-frame
                 (ret, frame) = cap.read()          
@@ -356,22 +358,29 @@ def object_counting_webcam(detection_graph, category_index, is_color_recognition
                                                                                                       category_index,
                                                                                                       use_normalized_coordinates=True,
                                                                                                       line_thickness=4)
-                if(len(counting_result) == 0):
+                if(len(counting_result) == 0 and input == None):
                     cv2.putText(input_frame, "...", (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)                       
                 else:
                     data = run(input_frame)
-                    text = str(data['gender']).replace("{","").replace("}","") +' , '+ str(data['age']).replace("{","").replace("}","")
-                    result = counting_result +' , ' + text
-                    print(result)
-                    cv2.putText(input_frame,result, (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)
-                
+                    data['person'] = counting_result.replace("'person:': ","")
+                    
+                    if(input != None):
+                        result.append(data)
+                        print(data)
+                    else:
+                        text = str(data['gender']).replace("{","").replace("}","") +' , '+ str(data['age']).replace("{","").replace("}","")
+                        result = counting_result +' , ' + text
+                        cv2.putText(input_frame,result, (10, 35), font, 0.8, (0,255,255),2,cv2.FONT_HERSHEY_SIMPLEX)
+                        
                 cv2.imshow('object counting',input_frame)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
+                    break
+                    # return result
 
             cap.release()
             cv2.destroyAllWindows()
+            return 1
     except Exception as e:
         print(e)
 
@@ -454,7 +463,7 @@ def targeted_object_counting(input_video, detection_graph, category_index, is_co
             cap.release()
             cv2.destroyAllWindows()
 
-def single_image_object_counting(input_video, detection_graph, category_index, is_color_recognition_enabled):     
+def single_image_object_counting(input_video, detection_graph, category_index, is_color_recognition_enabled,frame=''):     
         color = "waiting..."
         with detection_graph.as_default():
           with tf.compat.v1.Session(graph=detection_graph) as sess:
@@ -470,11 +479,13 @@ def single_image_object_counting(input_video, detection_graph, category_index, i
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')                   
 
-            input_frame = cv2.imread(input_video)
+            if(frame == ''):
+                input_frame = cv2.imread(input_video)
 
             # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+            else:
+                input_frame = frame
             image_np_expanded = np.expand_dims(input_frame, axis=0)
-
             # Actual detection.
             (boxes, scores, classes, num) = sess.run(
                 [detection_boxes, detection_scores, detection_classes, num_detections],
