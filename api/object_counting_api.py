@@ -481,7 +481,6 @@ def single_image_object_counting(input_video, detection_graph, category_index, i
 
             if(frame == ''):
                 input_frame = cv2.imread(input_video)
-
             # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
             else:
                 input_frame = frame
