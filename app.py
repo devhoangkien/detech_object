@@ -73,6 +73,28 @@ def fun_detect_video():
 def index():
     return render_template('index.html')
 
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    try:
+        data = request.json
+        img_data = data.get('image')  # Sử dụng img_data thay vì image_data
+        print(img_data)
+        if img_data:
+            # Giải mã dữ liệu hình ảnh
+            img_bytes = base64.b64decode(img_data.split(',')[1])
+            img_array = np.frombuffer(img_bytes, dtype=np.uint8)
+            img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+            
+            # Xử lý dữ liệu ảnh ở đây (nếu cần)
+            
+            return 'Image received by server!'
+        else:
+            return 'No image data received.'
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 'Internal Server Error', 500
+
 def generate_frames():
     cap = cv2.VideoCapture(0)
     detection_graph, category_index = backbone.set_model('ssd_mobilenet_v1_coco_2018_01_28', 'mscoco_label_map.pbtxt')

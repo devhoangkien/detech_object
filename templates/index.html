@@ -1,9 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Camera Streaming</title>
+    <title>Webcam Streaming</title>
 </head>
 <body>
-    <img src="{{ url_for('video_feed') }}">
+    <h1>Webcam Streaming</h1>
+    <video id="webcam" autoplay></video>
+    <button id="startButton">Start Streaming</button>
+    <button id="stopButton">Stop Streaming</button>
+    
+    <script>
+        const videoElement = document.getElementById('webcam');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        
+        startButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            videoElement.srcObject = stream;
+        });
+        
+        stopButton.addEventListener('click', () => {
+            const stream = videoElement.srcObject;
+            const tracks = stream.getTracks();
+            
+            tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+        });
+        
+        // Gửi dữ liệu hình ảnh đến máy chủ
+        videoElement.addEventListener('play', () => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+
+            setInterval(() => {
+                if (!videoElement.paused && !videoElement.ended) {
+                    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                    const imgData = canvas.toDataURL('image/jpeg');
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: JSON.stringify({ image: imgData }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(res => res.text()).then(data => console.log(data));
+                }
+    }, 1000); // Gửi ảnh mỗi 1 giây
+});
+
+    </script>
 </body>
 </html>
